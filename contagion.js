@@ -1,4 +1,10 @@
 /** @param {NS} ns */
+// This file will attempt to install and run itself on any server with a connection.
+// It will attempt to get admin, but you will need to uncomment the noted functions
+// to open ports when they are available to you. 
+// When first ran it will attempt to run happy-times.js with as many threads as posssible,
+// and will sleep until hacking is high enough. Note that this means the program will not 
+// spread from a server you are unable to hack until you have the skill needed. 
 export async function main(ns) {
   ns.tail()
 
@@ -41,8 +47,8 @@ export async function main(ns) {
           // ########################### //
           // #    Break ports here     # //
           // ########################### //
-          ns.brutessh(target.hostname);
-          ns.ftpcrack(target.hostname);
+          //ns.brutessh(target.hostname);
+          //ns.ftpcrack(target.hostname);
           //ns.relaysmtp(target.hostname);
           //ns.httpworm(target.hostname);
           //ns.sqlinject(target.hostname);
