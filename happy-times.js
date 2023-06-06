@@ -1,4 +1,6 @@
 /** @param {NS} ns */
+// This is the workhorse for contagion, the functions that actually make money are in here.
+// Contagion will run this script with as many threads as possible, and will account for edits.
 export async function main(ns) {
   var host = ns.args[0];
   var min_sec = ns.getServerMinSecurityLevel(host);
