@@ -12,7 +12,7 @@ export async function main(ns) {
 
 function run(host, client) {
   //recursion exit
-  if (ns.existsFile("crumb.txt", host.hostname)
+  if (ns.existsFile("crumb.txt", host.hostname))
       return;
   
   // get neighbors minus the RAMless losers
