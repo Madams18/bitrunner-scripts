@@ -7,13 +7,14 @@
 // spread from a server you are unable to hack until you have the skill needed. 
 export async function main(ns) {
   ns.tail()
+  var client_script = ns.args[0];
 
   var host = ns.getServer();
 
   // fill extra ram with hack
   var ram = host.maxRam;
   var contagion_ram = ns.getScriptRam("contagion.js");
-  var hack_ram = ns.getScriptRam("happy-times.js");
+  var hack_ram = ns.getScriptRam(client_script);
   var threads = Math.floor((ram - contagion_ram) / hack_ram);
   if (threads > 0 && host.moneyMax > 0) {
     // wait for hack level to be high enough before continuing
@@ -21,7 +22,7 @@ export async function main(ns) {
       ns.print("&&&&& Lacking hacking level, postponing.")
       await ns.sleep(60000);
     }
-    ns.run("happy-times.js", threads, host.hostname);  
+    ns.run(client_script, threads, host.hostname);  
   }
     
   // contagious part
@@ -62,7 +63,7 @@ export async function main(ns) {
         // spread virus 
         if (access) {
           ns.print("##### Infecting " + target.hostname);
-          var files = ["happy-times.js", "contagion.js"];
+          var files = [client_script, "contagion.js"];
           ns.scp(files, ip, host.hostname);
           ns.exec("contagion.js", ip);
         }
