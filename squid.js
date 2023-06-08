@@ -4,57 +4,57 @@
 export async function main(ns) {
   var host = ns.getServer();
   var client = ns.args[0];
+  var servers = [];
   while (true) {
-    run(host, client);
+    get_servers(host, servers);
+    start_hacks(client, host, servers);
     await ns.sleep(60000);
   }
 }
 
-function run(host, client) {
-  //recursion exit
-  if (ns.existsFile("crumb.txt", host.hostname))
-      return;
-  
-  // get neighbors minus the RAMless losers
+// Returns a list of all servers you can reach
+function get_servers(host, servers) {
   var neighbors = ns.scan(host.hostname);
-  
-  // run client script on them
-  var client_ram = ns.getScriptRam(client);
   for (var n in neighbors) {
-    //place a crumb so we know we've visited
-    ns.scp("crumb.txt", n.hostname);
-    
-    // ##### Client Setup ##### //
-    // if max $ above 0 and ram enough for client
-    var server_ram = ns.getServerMaxRAM(n.hostname) - ns.getServerUsedRAM(n.hostname);
-    if (ns.getServerMaxMoney(n.hostname) > 0 && server_ram >= client_ram) {
-      var access = ns.hasRootAccess(n.hostname);
-      if (!access) {
-        ns.print("##### Opening Ports")
+    if (!is_in(n, servers)) {
+      servers.push(n);
+      get_servers(n, servers);
+  }
+}
 
-        // ########################### //
-        // #    Break ports here     # //
-        // ########################### //
-        //ns.brutessh(target.hostname);
-        //ns.ftpcrack(target.hostname);
-        //ns.relaysmtp(target.hostname);
-        //ns.httpworm(target.hostname);
-        //ns.sqlinject(target.hostname);
+// utility for get_servers, returns if obj is in the given list
+function is_in(obj, list) {
+  for (var i in list) {
+    if (obj == i)
+      return true;
+  }
+  return false;
+}
 
-        // try to nuke
-        if (target.numOpenPortsRequired <= n.openPortCount) {
-          ns.print("##### Nuking " + n.hostname);
-          ns.nuke(n.hostname);
-        }
-      }
-      if (access) {
-        ns.scp(client, n.hostname)
-        // run client
-        ns.exec(client, n.hostname, int(server_ram/client_ram));
+// Runs the provided script on as many servers as possible
+function start_hacks(client, host, servers) {
+  var client_ram = ns.getScriptRAM(client);
+  for (var s in servers) {
+    var access = ns.hasRootAccess(s.hostname);
+    if (!access) {
+      // ########################### //
+      // #    Break ports here     # //
+      // ########################### //
+      //ns.brutessh(s.hostname);
+      //ns.ftpcrack(s.hostname);
+      //ns.relaysmtp(s.hostname);
+      //ns.httpworm(s.hostname);
+      //ns.sqlinject(s.hostname);
+
+      if (s.numOpenPortsRequired <= s.openPortCount) {
+        ns.nuke(s.hostname);
       }
     }
-    
-    // Move on to the neighbor's neighbors
-    run(n, client);
+    // run script
+    if (access && s.maxMoney > 0) {
+      ns.scp(client, n.hostname, host.hostname);
+      var threads = s.maxRAM / client_ram;
+      if (threads > 0)
+        ns.exec(client, n.hostname, threads);
   }
 }
